@@ -1,0 +1,5 @@
+{
+    "watch" : ["middleware.js"],
+    "exit" : "js, json",
+    "ignore" : ["node_modules"]
+}
