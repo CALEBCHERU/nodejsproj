@@ -1,5 +1,5 @@
 {
-    "watch" : ["middleware.js"],
+    "watch" : ["./src/server.js"],
     "exit" : "js, json",
     "ignore" : ["node_modules"]
 }

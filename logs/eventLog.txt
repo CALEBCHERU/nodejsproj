@@ -1,0 +1,5 @@
+2024/07/15	12:15:49	68efc54d-5eac-432f-a89b-66797223496a	log event emited!
+2024/07/15	12:30:15	f180b1ad-5e73-49a5-9d64-76809ae1769e	log event emited!
+2024/07/15	12:46:21	9e46ccfd-241d-43b1-90ac-5614c18c1a6a	log event emited!
+2024/07/15	12:47:15	51e3c19a-ad6e-488a-ba48-e2b80c027caf	log event emited!
+2024/07/15	12:49:13	99ec5255-35f8-4f97-a1f3-1e5bd7b4c355	log event emited!
