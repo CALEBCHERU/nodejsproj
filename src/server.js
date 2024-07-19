@@ -1,10 +1,10 @@
 var fs = require("fs");
 // http://localhost:5000/
 
-const logEmitter = require('./log-emitter.js')
 
+// const logEmitter = require('./log-emitter.js')
 const http = require("http");
-
+const path = require('path')
 const index = fs.readFileSync("./navbar-app/index.html");
 const style = fs.readFileSync("./navbar-app/styles.css");
 const js = fs.readFileSync("./navbar-app/browser-app.js");
@@ -12,9 +12,11 @@ const js = fs.readFileSync("./navbar-app/browser-app.js");
 console.log("Server Started");
 
 const server = http.createServer((req, res) => {
-  console.log("request event");
+  const logEmitter = require('./log-emitter.js')
+  // console.log("request event");
+  console.log(req.url,req.method)
   if (req.url === "/") {
-    res.end("<h1>welcome to our page</h1>  ");
+    res.end("<h1>welcome to Nodejs page</h1>  ");
   } else if (req.url === "/home") {
     res.writeHead(200, { "content-type": "text/html" });
     res.write(index);
@@ -70,5 +72,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(5000, () => {
-  console.log("server listening on port http://localhost:5000/....");
+  console.log("server listening on  http://localhost:5000/....");
 });

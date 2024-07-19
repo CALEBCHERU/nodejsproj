@@ -1,5 +1,12 @@
 {
-    "watch" : ["./src/server.js"],
-    "exit" : "js, json",
-    "ignore" : ["node_modules"]
+    "watch": [
+        "./"
+    ],
+    "exit": "js, json",
+    "ignore": [
+        "node_modules",
+        "node-express-course-main",
+        "navbar-app",
+        "logs"
+    ]
 }

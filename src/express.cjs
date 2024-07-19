@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const port = 3000;
+const port = 5000;
 
 const path = require('path')
 
@@ -11,9 +11,9 @@ app.get('/', (req, res) => {
   res.status(200).send('Hello World!');
 });
 
-app.use(express.static('./public'))
+// app.use(express.static('./public'))
 app.get('/homepage', (req, res) => {
-    res.readFile(path.resolve(__dirname, './navbar-app/index.html'));
+    res.render( '../views/index');
   });
 
 app.get('/info', (req, res) => {
@@ -23,6 +23,8 @@ app.get('/info', (req, res) => {
   })
   res.json(newPerson);
 });
+
+// params
 app.get('/info/:personID', (req, res) => {
   // console.log(req)
   // console.log(req.params)

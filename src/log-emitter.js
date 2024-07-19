@@ -14,4 +14,4 @@ function logEmitterFunc() {
     logEmitter.emit("log", "log event emited!");
   }, 2000);
 }
-logEmitterFunc()
+
