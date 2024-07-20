@@ -9,14 +9,29 @@ import {createUserValidationSchema} from "./validationSchemas.mjs"
 import Router from "./routes/users.mjs"
 
 // cookies
-// import cookieParser from "cookie-parser"
+import cookieParser from "cookie-parser"
 
+// session
+import session  from "express-session";
+
+// passport
+import passport  from "passport";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-// app.use(cookieParser)
+// cookies
+app.use(cookieParser("anyword"))
+// session
+app.use(session({
+  secret: "anyword",   //this is used to decrepte and encryte the session so it shouldn't be something that someone can geus
+  saveUninitialized: false, //this is used to prevent session and cokies from saving itself even when their is no sessions or cookies provided to prevent it from taking more space
+  resave: false,
+  cookie: {
+    maxAge : 6000*60,
+  }
+}))
 
 const mockUsers = [
   { id: 1, username: "caleb", displayname: "Caleb" },
