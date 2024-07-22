@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const logger = require('./logger')
+const logger = require('../logger')
 
 // middleware  
 app.use(logger)  //this shall apply to all api request/url

@@ -3,11 +3,11 @@ import express from "express";
 // express validator
 import { query,validationResult,body, matchedData , checkSchema} from "express-validator";
 
-import {createUserValidationSchema} from "./validationSchemas.mjs"
+import {createUserValidationSchema} from "./schema/validationSchemas.mjs"
 
 // router
 import Router from "./routes/users.mjs"
-
+import RouterMongoose from "./routes/mongoose.mjs"
 // cookies
 import cookieParser from "cookie-parser"
 
@@ -16,9 +16,21 @@ import session  from "express-session";
 
 // passport
 import passport  from "passport";
+import "./strategies/local-strategy.mjs"
+// import "./schema/mongoose-schema.mjs"
+
+
+import  mongoose  from "mongoose";
+// import mongodb from "./database/mongodb.js"
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
+// database Mongodb
+// app.use(mongodb)
+mongoose.connect("mongodb://localhost/express-tutorial").then(() => console.log("connected to Mongodb")).catch((err) => (console.log(`Error : ${err}`)))
+
 
 app.use(express.json());
 // cookies
@@ -33,11 +45,15 @@ app.use(session({
   }
 }))
 
+// passport
+app.use(passport.initialize())  //enabling passport
+app.use(passport.session())
+
 const mockUsers = [
-  { id: 1, username: "caleb", displayname: "Caleb" },
-  { id: 2, username: "anson", displayname: "Anson" },
-  { id: 3, username: "joy", displayname: "Joy" },
-  { id: 4, username: "kylie", displayname: "Kylie" },
+  { id: 1, username: "caleb", displayname: "Caleb",password : "1234" },
+  { id: 2, username: "anson", displayname: "Anson",password : "1234"  },
+  { id: 3, username: "joy", displayname: "Joy",password : "1234"  },
+  { id: 4, username: "kylie", displayname: "Kylie",password : "1234"  },
 ];
 
 // Middleware
@@ -52,7 +68,7 @@ const loggingMiddleware = (req, res, next) => {
 app.use(loggingMiddleware);
 
 const loggingMiddleware1 = (req, res, next) => {
-  console.log("Hii");
+  console.log("Hii Express");
   console.log(`${req.method} - ${req.url}`);
   next();
 };
@@ -65,7 +81,37 @@ app.get("/", loggingMiddleware1, (req, res) => {
 
 // router
 app.use(Router)
+app.use(RouterMongoose)
 
+
+// authetication using passport
+app.post("/api/auth",passport.authenticate("local"), (req,res) => {
+  console.log("User Authenticated")
+  console.log(req.session.passport)
+  // the passport user id is stored in the session
+  console.log(`req.session.passport.user: ${req.session.passport.user}`)
+  res.sendStatus(200)
+})
+app.post("/api/auth/status", (req,res) => {
+  console.log("inside the /api/auth/status ")
+  console.log(req.user)
+  if (!req.user) 
+    return res.sendStatus(401)
+  else {
+    return req.user ? res.send(req.user) : res.sendStatus(401)
+  }
+  
+  
+})
+app.post("/api/auth/logout", (req,res) => {
+  console.log("logout ")
+  console.log(req.user)
+  req.logout((err) => { 
+    if (!req.user) return res.sendStatus(400)
+    res.send(200)
+  })
+  
+})
 app.get("/express", (req, res) => {
   // console.log("\n\nstart")
   // console.log(req)
@@ -191,4 +237,5 @@ app.get("/express/user", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Running on  http://localhost:${PORT}`);
+  console.log("Connecting to mongodb please wait....")
 });
