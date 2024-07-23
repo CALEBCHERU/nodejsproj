@@ -1,61 +1,49 @@
+
 import { Router} from "express"
 
-import {
-    query,
-    validationResult,
-    checkSchema,
-    matchedData,
-} from "express-validator"
+import express from "express";
+import { checkSchema, validationResult, matchedData } from "express-validator";
+import mongoose from "mongoose";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import passport from "passport";
+import { createUserValidationSchema } from "../schema/validationSchemas.mjs";
+import { User } from "../schema/mongoose-schema.mjs";
+import "../strategies/moongose-strategy.mjs";
+import { hashPassword } from "../utils/helper.mjs";
 
-import { createUserValidationSchema } from "../schema/validationSchemas.mjs"
-
-import { User } from "../schema/mongoose-schema.mjs"
-// passport
-import passport  from "passport";
-// import "./strategies/local-strategy.mjs"
-import "../schema/mongoose-schema.mjs"
 
 
 const RouterMongoose = Router()
 // checkSchema >>> point to note is that this doesn't through an error so we introduce validationResult
-RouterMongoose.post("/api/usermongodb",checkSchema(createUserValidationSchema),async(req,res)=>{
-    const result = validationResult(req)
-    if(!result.isEmpty()) return res.send(result.array())
-    // const {body} = req
-    // const newUser = new User(body)
-    // the below is the recommended way  to grab the data
-    const data = matchedData(req)
-    const newUser = new User(data)
-    
-    
-    try {
-        const savedUser = await newUser.save()
-        return res.status(201).send(savedUser) 
-        console.log("new user created")
-    } catch (error) {
-        return res.sendStatus(400)
-    }
-    
-    
+RouterMongoose.post("/api/usermongodb", checkSchema(createUserValidationSchema), async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) return res.status(400).send(result.array());
 
-})
+  const data = matchedData(req);
+  data.password = hashPassword(data.password);  // Hash the password before saving
 
-// authetication using passport
-RouterMongoose.post("/api/usermongodb/auth",passport.authenticate(), (req,res) => {
-    console.log("User Authenticated")
-    console.log(req.session.passport)
-    // the passport user id is stored in the session
-    console.log(`req.session.passport.user: ${req.session.passport.user}`)
-    res.sendStatus(200)
-  })
+  const newUser = new User(data);
 
-RouterMongoose.post("/api/usermongodb/auth/status", (req,res) => {
-    console.log("inside the /api/auth/status ")
-    console.log(req.user)
-    if (!req.user) return res.sendStatus(401)
-    return req.user ? res.send(req.user) : res.sendStatus(401)
-    
-  })
+  try {
+    const savedUser = await newUser.save();
+    console.log("New user created");
+    return res.status(201).send(savedUser);
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+});
+
+RouterMongoose.post("/api/usermongodb/auth", passport.authenticate('local'), (req, res) => {
+  console.log('User Authenticated');
+  return res.sendStatus(200);
+});
+
+RouterMongoose.post("/api/usermongodb/auth/status", (req, res) => {
+  console.log("Checking authentication status");
+  if (!req.user) return res.sendStatus(401);
+  return res.send(req.user);
+});
 
 
 export default RouterMongoose

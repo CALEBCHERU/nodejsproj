@@ -1,39 +1,38 @@
-import  passport  from "passport";
-import {Strategy} from "passport-local"
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { User } from "../schema/mongoose-schema.mjs";
+import { comparePassword } from "../utils/helper.mjs";
 
-
-passport.serializeUser((user,done) => {
-    console.log(`Inside Serializer User`)
-    //console.log(user) = console.log(req.user) are the same
-    console.log(user);
-    done(null,user.id)
-})
-
-passport.deserializeUser(async(id,done) => {
+passport.use(new LocalStrategy(
+  async (username, password, done) => {
     try {
-        console.log("Inside Deserializer");
-        console.log(`Deserializer User Id : ${id}`);
-        const findUser = await User.findById(id)
-        if (!findUser) 
-            throw new Error("User Not Found") 
-        done(null,findUser)
-    } catch (error) {
-        done(error,null)
+      const user = await User.findOne({ username });
+      if (!user) {
+        return done(null, false, { message: "Incorrect username." });
+      }
+      const isMatch = await comparePassword(password, user.password);
+      if (!isMatch) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err);
     }
-})
+  }
+));
 
-export default passport.use(
-    new Strategy( async(username,password,done) => {
-        try {
-            const findUser = await User.findOne({ username })
-            if (!findUser) 
-                throw new Error('User not found')
-            if (findUser.password !== password)
-                throw new Error("Invalid credentials") //throws the error to the catch
-            done(null, findUser)
-        } catch (error) {
-            done(error,null)
-            
-        }
-    })
-)
+passport.serializeUser((user, done) => {
+  console.log(`Inside serializeUser`);
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    console.log("Inside deserializeUser");
+    const user = await User.findById(id);
+    if (!user) throw new Error("User Not Found");
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});

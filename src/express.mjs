@@ -16,12 +16,16 @@ import session  from "express-session";
 
 // passport
 import passport  from "passport";
-import "./strategies/local-strategy.mjs"
-// import "./schema/mongoose-schema.mjs"
+// import "./strategies/local-strategy.mjs"
+import "./schema/mongoose-schema.mjs"
 
 
 import  mongoose  from "mongoose";
 // import mongodb from "./database/mongodb.js"
+
+
+// storing session in a mongo db
+// import Mongostore from "connect-mongo"
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,7 +46,12 @@ app.use(session({
   resave: false,
   cookie: {
     maxAge : 6000*60,
-  }
+  },
+  // store: MongoStore.create({
+  //   client: mongoose.connection.getClient()
+  // }) *****
+    
+
 }))
 
 // passport
@@ -189,6 +198,15 @@ app.post("/api/users", [body("username").notEmpty().withMessage("username must n
 
   const newUser = {id: mockUsers[mockUsers.length - 1].id + 1,...body}
   mockUsers.push(newUser)
+// storing sessions in a database
+  req.sessionStore.get(req.session.id, (err,sessionData) => {
+    if (err) {
+      console.log(err)
+      throw err
+    }
+    console.log("Inside Session store Get")
+    console.log(sessionData)
+  })
   
 
   return res.status(201).send(newUser);
