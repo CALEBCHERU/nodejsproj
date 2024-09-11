@@ -25,7 +25,7 @@ import  mongoose  from "mongoose";
 
 
 // storing session in a mongo db
-// import Mongostore from "connect-mongo"
+import Mongostore from "connect-mongo"
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,13 +43,14 @@ app.use(cookieParser("anyword"))
 app.use(session({
   secret: "anyword",   //this is used to decrepte and encryte the session so it shouldn't be something that someone can geus
   saveUninitialized: false, //this is used to prevent session and cokies from saving itself even when their is no sessions or cookies provided to prevent it from taking more space
-  resave: false,
+  resave: false, //this shall resave the session or cookies every time 
   cookie: {
     maxAge : 6000*60,
   },
-  // store: MongoStore.create({
-  //   client: mongoose.connection.getClient()
-  // }) *****
+  // // storing session in a mongo db
+  store: Mongostore.create({
+    client: mongoose.connection.getClient()
+  }) 
     
 
 }))

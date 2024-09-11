@@ -36,14 +36,25 @@ RouterMongoose.post("/api/usermongodb", checkSchema(createUserValidationSchema),
 
 RouterMongoose.post("/api/usermongodb/auth", passport.authenticate('local'), (req, res) => {
   console.log('User Authenticated');
-  return res.sendStatus(200);
+  return res.status(200).send({msg : "You are autheticated"});
 });
 
 RouterMongoose.post("/api/usermongodb/auth/status", (req, res) => {
+  // storing sessions in a database
+  req.sessionStore.get(req.session.id, (err,sessionData) => {
+    if (err) {
+      console.log(err)
+      throw err
+    }
+    console.log("Inside Session store Get")
+    console.log(sessionData)
+  })
   console.log("Checking authentication status");
   if (!req.user) return res.sendStatus(401);
   return res.send(req.user);
 });
+
+
 
 
 export default RouterMongoose
