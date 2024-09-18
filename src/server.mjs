@@ -30,16 +30,12 @@ import Mongostore from "connect-mongo"
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
-// database Mongodb
-// app.use(mongodb)
-mongoose.connect("mongodb://localhost/express-tutorial").then(() => console.log("connected to Mongodb")).catch((err) => (console.log(`Error : ${err}`)))
-
+mongoose.connect("mongodb://localhost/express-tutorial")
+  .then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.log(`Error: ${err}`));
 
 app.use(express.json());
-// cookies
-app.use(cookieParser("anyword"))
-// session
+app.use(cookieParser("anyword"));
 app.use(session({
   secret: "anyword",   //this is used to decrepte and encryte the session so it shouldn't be something that someone can geus
   saveUninitialized: false, //this is used to prevent session and cokies from saving itself even when their is no sessions or cookies provided to prevent it from taking more space
@@ -74,7 +70,7 @@ const loggingMiddleware = (req, res, next) => {
   console.log(`${req.method} - ${req.url}`);
   next();
 };
-// this Middleware shall apply to every url
+
 app.use(loggingMiddleware);
 
 const loggingMiddleware1 = (req, res, next) => {
@@ -231,30 +227,13 @@ app.put("/api/user/:id", (req, res) => {
   mockUsers[findUserIndex] = { id: parsedId, ...body };
   return res.sendStatus(200);
 });
-// PATCH
-app.patch("/api/user/:id", (req, res) => {
-  // console.log(req.params)
-  const {
-    body,
-    params: { id },
-  } = req;
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return res.status(400).send({ msg: "bad request" });
 
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) return res.sendStatus(404);
-  mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body };
-  return res.sendStatus(200);
-});
-// DELETE
-
-// express validation
-app.get("/express/user", (req, res) => {
-  res.status(200).send("<h1>Express user</h1>");
+app.post("/api/usermongodb/auth/status", (req, res) => {
+  console.log("Checking authentication status");
+  if (!req.user) return res.sendStatus(401);
+  return res.send(req.user);
 });
 
 app.listen(PORT, () => {
-  console.log(`Running on  http://localhost:${PORT}`);
-  console.log("Connecting to mongodb please wait....")
+  console.log(`Running on http://localhost:${PORT}`);
 });
